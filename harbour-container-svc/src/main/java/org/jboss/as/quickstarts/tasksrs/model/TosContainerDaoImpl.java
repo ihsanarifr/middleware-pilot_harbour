@@ -44,6 +44,7 @@ public class TosContainerDaoImpl implements TostContainerDao {
 
     private TypedQuery<TosContainerStack> querySelectAllTasksFromUser(String orderNo) {
         return em.createQuery("SELECT t FROM TosContainerStack t WHERE t.orderNo = ?1", TosContainerStack.class).setParameter(1, orderNo);
+
     }
 
 	@Override
