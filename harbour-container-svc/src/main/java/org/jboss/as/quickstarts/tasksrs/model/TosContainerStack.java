@@ -48,7 +48,7 @@ import javax.xml.bind.annotation.XmlTransient;
 public class TosContainerStack implements Serializable {
 
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    // @GeneratedValue(strategy = IDENTITY)
     @Column(name = "ROW_ID")
 //    @GeneratedValue(generator="InvSeq") 
 //    @SequenceGenerator(name="InvSeq",sequenceName="INV_SEQ", allocationSize=5) 

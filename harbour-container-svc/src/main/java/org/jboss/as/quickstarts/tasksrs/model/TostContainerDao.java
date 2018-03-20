@@ -21,10 +21,7 @@ import java.util.List;
 import javax.ejb.Local;
 
 /**
- * Basic operations for manipulation of tasks
- *
- * @author Lukas Fryc
- *
+ * Basic operations for manipulation of stack
  */
 @Local
 public interface TostContainerDao {
@@ -37,5 +34,6 @@ public interface TostContainerDao {
 
     TosContainerStack getForOrdeNo( String orderNo);
 
-    void deleteTask(TosContainerStack stack);
+    void deleteStack(TosContainerStack stack);
+    void createStack(TosContainerStack stack);
 }

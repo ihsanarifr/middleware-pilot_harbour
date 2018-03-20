@@ -21,9 +21,11 @@ import java.util.Objects;
 
 import javax.inject.Inject;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
@@ -61,5 +63,15 @@ public class TosContainerResource {
         return taskDao.getAll();
     }
 
+    @POST
+    @Path("stacks")
+    // @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Consumes({"application/json"})
+    public Response createStack(List<TosContainerStack> stacks){
+        for (TosContainerStack stack : stacks) {
+            taskDao.createStack(stack);
+        }
+		return Response.ok().build();
+    }
    
 }

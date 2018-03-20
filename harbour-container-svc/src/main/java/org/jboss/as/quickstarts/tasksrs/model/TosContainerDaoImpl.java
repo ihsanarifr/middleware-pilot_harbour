@@ -35,11 +35,13 @@ public class TosContainerDaoImpl implements TostContainerDao {
     private EntityManager em;
 
     @Override
-    public void deleteTask(TosContainerStack task) {
-        if (!em.contains(task)) {
-            task = em.merge(task);
-        }
-        em.remove(task);
+    public void deleteStack(TosContainerStack stack) {
+        em.remove(stack);
+    }
+
+    @Override
+    public void createStack(TosContainerStack stack) {
+        em.persist(stack);
     }
 
     private TypedQuery<TosContainerStack> querySelectAllTasksFromUser(String orderNo) {
@@ -49,8 +51,7 @@ public class TosContainerDaoImpl implements TostContainerDao {
 
 	@Override
 	public void createTask(TosContainerStack stack) {
-		// TODO Auto-generated method stub
-        em.persist(stack);
+        em.merge(stack);
 		
 	}
 
