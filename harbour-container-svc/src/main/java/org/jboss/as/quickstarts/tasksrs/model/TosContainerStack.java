@@ -19,22 +19,16 @@ package org.jboss.as.quickstarts.tasksrs.model;
 // JSON: uncomment to include json support (note json is not part of the JAX-RS standard)
 // import com.fasterxml.jackson.annotation.JsonIgnore;
 
-import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
 import java.io.StringReader;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
-import javax.persistence.ManyToOne;
 import javax.xml.bind.JAXB;
-import javax.xml.bind.annotation.XmlAttribute;
-import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
 
 /**
  * User's task entity which is marked up with JPA annotations and JAXB for serializing XML
