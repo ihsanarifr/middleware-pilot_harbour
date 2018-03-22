@@ -41,7 +41,7 @@ public class TosContainerDaoImpl implements TostContainerDao {
 
     @Override
     public void createStack(TosContainerStack stack) {
-        em.persist(stack);
+        em.merge(stack);
     }
 
     private TypedQuery<TosContainerStack> querySelectAllTasksFromUser(String orderNo) {

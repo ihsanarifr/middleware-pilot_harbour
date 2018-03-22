@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    Copyright 2014-2017, Red Hat, Inc. and/or its affiliates, and individual
+    contributors by the @authors tag. 
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+    http://www.apache.org/licenses/LICENSE-2.0
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+-->
+<!--
+   This is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
+   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the bundle is installed.
+
+   The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
+   and the Camel namespaces.
+-->
+<blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd                            http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+    <!--
+      The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. Additionally,
+      we can also define namespace prefixes we want to use them in the XPath expressions in our CBR.
+
+      While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
+      to set those for runtime management purposes (logging, JMX MBeans, ...)
+    -->
+    <camelContext id="Backend_Content" xmlns="http://camel.apache.org/schema/blueprint">
+        <route id="_route1">
+            <from id="_from1" uri="vm:getContainerStack"/>
+            <removeHeaders id="_removeHeaders1" pattern="CamelHttp*"/>
+            <setHeader headerName="CamelHttpMethod" id="_setHeader2">
+                <constant>GET</constant>
+            </setHeader>
+            <setHeader headerName="Content-Type" id="_setHeader3">
+                <constant>application/json</constant>
+            </setHeader>
+            <setBody id="_setBody2">
+                <constant>{}</constant>
+            </setBody>
+            <to id="getStacks" uri="http4://localhost:8080/harbour-container/stacks"/>
+            <convertBodyTo id="_convertBodyTo1" type="java.lang.String"/>
+            <unmarshal id="_unmarshal1">
+                <json library="Jackson"
+                    unmarshalTypeName="java.util.HashMap" useList="true"/>
+            </unmarshal>
+            <log id="_log3" message="unmarshal ${body}"/>
+            <onException id="_onException1">
+                <exception>java.lang.Exception</exception>
+                <handled>
+                    <constant>true</constant>
+                </handled>
+                <log id="_log1" loggingLevel="ERROR" message="${exception.stacktrace}"/>
+                <setBody id="_setBody7">
+                    <simple>'SystemError'</simple>
+                </setBody>
+            </onException>
+        </route>
+        <route id="_route2">
+            <from id="_from2" uri="vm:createStack"/>
+            <removeHeaders id="_removeHeaders2" pattern="CamelHttp*"/>
+            <marshal id="_marshal1">
+                <json library="Jackson" prettyPrint="true" useList="true"/>
+            </marshal>
+            <setHeader headerName="CamelHttpMethod" id="_setHeader1">
+                <constant>POST</constant>
+            </setHeader>
+            <to id="sendStack" uri="http4://localhost:8080/harbour-container/stacks"/>
+            <onException id="_onException2">
+                <exception>java.lang.Exception</exception>
+                <handled>
+                    <constant>true</constant>
+                </handled>
+                <log id="_log2" loggingLevel="ERROR" message="${exception.stacktrace}"/>
+                <setBody id="_setBody3">
+                    <simple>'SystemError'</simple>
+                </setBody>
+            </onException>
+        </route>
+    </camelContext>
+</blueprint>
