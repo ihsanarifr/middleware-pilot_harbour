@@ -1,133 +1,132 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!--
-    Copyright 2014-2017, Red Hat, Inc. and/or its affiliates, and individual
-    contributors by the @authors tag. 
-
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-    http://www.apache.org/licenses/LICENSE-2.0
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
--->
-<!--
-   This is the OSGi Blueprint XML file defining the Camel context and routes.  Because the file is in the
-   OSGI-INF/blueprint directory inside our JAR, it will be automatically activated as soon as the bundle is installed.
-
-   The root element for any OSGi Blueprint file is 'blueprint' - you also see the namespace definitions for both the Blueprint
-   and the Camel namespaces.
--->
+<!-- Copyright 2014-2017, Red Hat, Inc. and/or its affiliates, and individual 
+	contributors by the @authors tag. Licensed under the Apache License, Version 
+	2.0 (the "License"); you may not use this file except in compliance with 
+	the License. You may obtain a copy of the License at http://www.apache.org/licenses/LICENSE-2.0 
+	Unless required by applicable law or agreed to in writing, software distributed 
+	under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES 
+	OR CONDITIONS OF ANY KIND, either express or implied. See the License for 
+	the specific language governing permissions and limitations under the License. -->
+<!-- This is the OSGi Blueprint XML file defining the Camel context and routes. 
+	Because the file is in the OSGI-INF/blueprint directory inside our JAR, it 
+	will be automatically activated as soon as the bundle is installed. The root 
+	element for any OSGi Blueprint file is 'blueprint' - you also see the namespace 
+	definitions for both the Blueprint and the Camel namespaces. -->
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd                            http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
-    <!--
-      The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. Additionally,
-      we can also define namespace prefixes we want to use them in the XPath expressions in our CBR.
-
-      While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
-      to set those for runtime management purposes (logging, JMX MBeans, ...)
-    -->
-    <!-- to setup camel servlet with OSGi HttpService -->
-    <reference id="httpService" interface="org.osgi.service.http.HttpService"/>
-    <camelContext id="QueryService" xmlns="http://camel.apache.org/schema/blueprint">
-        <restConfiguration apiContextListing="true"
-            apiContextPath="api-docs" component="servlet"
-            contextPath="/rest" enableCORS="true" host="0.0.0.0" port="8181"/>
-        <rest path="/query">
-            <get uri="/{cacheName}" produces="application/json">
-                <to uri="direct:query"/>
-            </get>
-             <get uri="/odata" produces="application/json">
-                <to uri="direct:queryOdata"/>
-            </get>
-        </rest>
-        <route id="Query">
-            <from id="_from1" uri="direct:query"/>
-            <to id="_to5" uri="direct:checkcache"/>
-            <choice id="_choice2">
-                <when id="_when2">
-                    <simple>${header.cacheStatus} == 'NotFound'</simple>
-                    <to id="_to6" uri="direct:queryJdv"/>
-                    <to id="_to7" pattern="InOnly" uri="seda:savetocache"/>
-                </when>
-                <otherwise id="_otherwise2">
-                    <to id="log2" pattern="InOnly" uri="vm:common"/>
-                </otherwise>
-            </choice>
-        </route>
-        <route id="CheckCache">
-            <from id="_from2" uri="direct:checkcache"/>
-            <setHeader headerName="CamelInfinispanOperation" id="_setHeader1">
-                <constant>CamelInfinispanOperationGet</constant>
-            </setHeader>
-            <setHeader headerName="CamelInfinispanKey" id="_setHeader2">
-                <simple>${header.cacheName}</simple>
-            </setHeader>
-            <to id="checkcache" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheStatus}}"/>
-            <choice id="_choice1">
-                <when id="_when1">
-                    <simple>${header.CamelInfinispanOperationResult} == null || ${header.CamelInfinispanOperationResult} == 'Not Ready'</simple>
-                    <setHeader headerName="cacheStatus" id="_setHeader3">
-                        <constant>NotFound</constant>
-                    </setHeader>
-                </when>
-                <otherwise id="_otherwise1">
-                    <setHeader headerName="cacheStatus" id="_setHeader4">
-                        <constant>Found</constant>
-                    </setHeader>
-                    <to id="getCache" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheData}}"/>
-                    <setBody id="_setBody2">
-                        <simple>${header.CamelInfinispanOperationResult}</simple>
-                    </setBody>
-                </otherwise>
-            </choice>
-        </route>
-        <route id="QueryJDVOdata">
-            <!-- <to id="_to1" uri="odata://read/Spiner_VBL_NewGen.TOS_CONTAINER_LAST_STACK?$format=json"/> -->
-            <from id="_from3" uri="direct:queryOdata"/>
-            <to id="_to1" uri="odata://read/Spiner_VBL_NewGen.TOS_CONTAINER_LAST_STACK"/>
-            <to id="_to2" pattern="InOnly" uri="vm:common"/>
-            <split id="_split1"
-                strategyRef="ArrayListAggregationStrategy" streaming="true">
-                <simple>${body.getEntries()}</simple>
-                <setBody id="_setBody1">
-                    <simple>${body.getProperties()</simple>
-                </setBody>
-            </split>
-            <marshal id="_marshal1">
-                <json library="Jackson"/>
-            </marshal>
-        </route>
-        <route id="SaveToCache">
-            <from id="_from4" uri="seda:savetocache"/>
-            <setHeader headerName="CamelInfinispanOperation" id="_setHeader5">
-                <constant>CamelInfinispanOperationPut</constant>
-            </setHeader>
-            <setHeader headerName="CamelInfinispanKey" id="_setHeader7">
-                <simple>${header.cacheName}</simple>
-            </setHeader>
-            <setHeader headerName="CamelInfinispanValue" id="_setHeader6">
-                <constant>Not Ready</constant>
-            </setHeader>
-            <to id="_to3" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheStatus}}"/>
-            <setHeader headerName="CamelInfinispanValue" id="_setHeader6">
-                <simple>${body}</simple>
-            </setHeader>
-            <to id="saveCache" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheData}}"/>
-            <to id="log" pattern="InOnly" uri="vm:common"/>
-            <setHeader headerName="CamelInfinispanValue" id="_setHeader9">
-                <constant>Ready</constant>
-            </setHeader>
-            <to id="_to4" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheStatus}}"/>
-        </route>
-        <route id="jdvSpinerQuery">
-            <from id="_from5" uri="direct:queryJdv"/>
-            <to id="_to8" uri="sql:Select * from Spiner_VBL_NewGen.TOS_CONTAINER_LAST_STACK?dataSource=dsJdv"/>
-            <marshal id="_marshal2">
-                <json library="Jackson"/>
-            </marshal>
-        </route>
-    </camelContext>
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd                            http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
+	<!-- The namespace for the camelContext element in Blueprint is 'https://camel.apache.org/schema/blueprint'. 
+		Additionally, we can also define namespace prefixes we want to use them in 
+		the XPath expressions in our CBR. While it is not required to assign id's 
+		to the <camelContext/> and <route/> elements, it is a good idea to set those 
+		for runtime management purposes (logging, JMX MBeans, ...) -->
+	<!-- to setup camel servlet with OSGi HttpService -->
+	<reference id="httpService" interface="org.osgi.service.http.HttpService" />
+	<camelContext id="QueryService"
+		xmlns="http://camel.apache.org/schema/blueprint">
+		<restConfiguration apiContextListing="true"
+			apiContextPath="api-docs" component="servlet" contextPath="/rest"
+			enableCORS="true" host="0.0.0.0" port="8181" />
+		<rest path="/query">
+			<get produces="application/json" uri="/{cacheName}">
+				<to uri="direct:query" />
+			</get>
+			<get produces="application/json" uri="/odata">
+				<to uri="direct:queryOdata" />
+			</get>
+		</rest>
+		<route id="Query">
+			<from id="_from1" uri="direct:query" />
+			<to id="_to5" uri="direct:checkcache" />
+			<choice id="_choice2">
+				<when id="_when2">
+					<simple>${header.cacheStatus} == 'NotFound'</simple>
+					<to id="_to6" uri="direct:queryJdv" />
+					<to id="_to7" pattern="InOnly" uri="seda:savetocache" />
+				</when>
+				<otherwise id="_otherwise2">
+					<to id="log2" pattern="InOnly" uri="vm:common" />
+				</otherwise>
+			</choice>
+		</route>
+		<route id="CheckCache">
+			<from id="_from2" uri="direct:checkcache" />
+			<setHeader headerName="CamelInfinispanOperation" id="_setHeader1">
+				<constant>CamelInfinispanOperationGet</constant>
+			</setHeader>
+			<setHeader headerName="CamelInfinispanKey" id="_setHeader2">
+				<simple>${header.cacheName}</simple>
+			</setHeader>
+			<to id="checkcache" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheStatus}}" />
+			<choice id="_choice1">
+				<when id="_when1">
+					<simple>${header.CamelInfinispanOperationResult} == null || ${header.CamelInfinispanOperationResult} == 'Not Ready'</simple>
+					<setHeader headerName="cacheStatus" id="_setHeader3">
+						<constant>NotFound</constant>
+					</setHeader>
+				</when>
+				<otherwise id="_otherwise1">
+					<setHeader headerName="cacheStatus" id="_setHeader4">
+						<constant>Found</constant>
+					</setHeader>
+					<to id="getCache" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheData}}" />
+					<setBody id="_setBody2">
+						<simple>${header.CamelInfinispanOperationResult}</simple>
+					</setBody>
+				</otherwise>
+			</choice>
+		</route>
+		<route id="QueryJDVOdata">
+			<!-- <to id="_to1" uri="odata://read/Spiner_VBL_NewGen.TOS_CONTAINER_LAST_STACK?$format=json"/> -->
+			<from id="_from3" uri="direct:queryOdata" />
+			<to id="_to1" uri="odata://read/Spiner_VBL_NewGen.TOS_CONTAINER_LAST_STACK" />
+			<to id="_to2" pattern="InOnly" uri="vm:common" />
+			<split id="_split1" strategyRef="ArrayListAggregationStrategy"
+				streaming="true">
+				<simple>${body.getEntries()}</simple>
+				<setBody id="_setBody1">
+					<simple>${body.getProperties()</simple>
+				</setBody>
+			</split>
+			<marshal id="_marshal1">
+				<json library="Jackson" />
+			</marshal>
+		</route>
+		<route id="SaveToCache">
+			<from id="_from4" uri="seda:savetocache" />
+			<setHeader headerName="CamelInfinispanOperation" id="_setHeader5">
+				<constant>CamelInfinispanOperationPut</constant>
+			</setHeader>
+			<setHeader headerName="CamelInfinispanLifespanTime" id="_setHeaderLifeSpan">
+				<simple>{{jdg.cache.lifespanTime}}</simple>
+			</setHeader>
+			<setHeader headerName="CamelInfinispanTimeUnit" id="_setHeaderTimeUnit">
+				<simple>{{jdg.cache.timeUnit}}</simple>
+			</setHeader>
+			<setHeader headerName="CamelInfinispanKey" id="_setHeader7">
+				<simple>${header.cacheName}</simple>
+			</setHeader>
+			<setHeader headerName="CamelInfinispanValue" id="_setHeader6">
+				<constant>Not Ready</constant>
+			</setHeader>
+			<to id="_to3" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheStatus}}" />
+			<setHeader headerName="CamelInfinispanValue" id="_setHeader6">
+				<simple>${body}</simple>
+			</setHeader>
+			<to id="saveCache" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheData}}" />
+			<to id="log" pattern="InOnly" uri="vm:common" />
+			<setHeader headerName="CamelInfinispanValue" id="_setHeader9">
+				<constant>Ready</constant>
+			</setHeader>
+			<to id="_to4" uri="infinispan:{{jdg.hosts}}?cacheName={{jdg.cacheStatus}}" />
+		</route>
+		<route id="jdvSpinerQuery">
+			<from id="_from5" uri="direct:queryJdv" />
+			<to id="_to8"
+				uri="sql:Select * from Spiner_VBL_NewGen.TOS_CONTAINER_LAST_STACK?dataSource=dsJdv" />
+			<marshal id="_marshal2">
+				<json library="Jackson" />
+			</marshal>
+		</route>
+	</camelContext>
 </blueprint>
