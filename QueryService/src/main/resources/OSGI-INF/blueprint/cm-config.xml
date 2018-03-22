@@ -5,6 +5,10 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="              http://www.osgi.org/xmlns/blueprint/v1.0.0 http://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd              http://camel.apache.org/schema/blueprint/cxf http://camel.apache.org/schema/blueprint/cxf/camel-cxf.xsd              http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
     <cm:property-placeholder persistent-id="id.co.pelindo.backend">
         <cm:default-properties>
+        		<cm:property name="db.driverClassName" value="org.teiid.jdbc.TeiidDriver"/>
+            <cm:property name="db.url" value="jdbc:teiid:SpinerVDB@mm://localhost:31000"/>
+            <cm:property name="db.username" value="teiidUser"/>
+            <cm:property name="db.password" value="P@ssw0rd"/>
             <cm:property name="odata.auth" value="Basic dGVpaWRVc2VyOlBAc3N3MHJk"/>
             <cm:property name="odata.accept" value="*/*"/>
             <cm:property name="odata.contentType" value="application/atom+xml;charset=utf-8"/>

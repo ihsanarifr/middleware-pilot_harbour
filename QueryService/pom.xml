@@ -32,6 +32,8 @@
     <version.maven-bundle-plugin>3.2.0</version.maven-bundle-plugin>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     <jboss.fuse.bom.version>6.3.0.redhat-187</jboss.fuse.bom.version>
+    <teiid.version>8.12.11.6_4-redhat-64-12</teiid.version>
+    <dbcp.version>1.4</dbcp.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
   <dependencyManagement>
@@ -97,6 +99,26 @@
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-sql</artifactId>
     </dependency>
+    <dependency>
+		<groupId>org.jboss.teiid</groupId>
+		<artifactId>teiid-client</artifactId>
+        <version>${teiid.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.jboss.teiid</groupId>
+		<artifactId>teiid-common-core</artifactId>
+        	<version>${teiid.version}</version>
+	</dependency>       
+	<dependency>
+		<groupId>org.jboss.teiid</groupId>
+		<artifactId>teiid-jdbc</artifactId>
+		<version>${teiid.version}</version>
+	</dependency>
+	<dependency>
+		  <groupId>commons-dbcp</groupId>
+		  <artifactId>commons-dbcp</artifactId>
+		  <version>${dbcp.version}</version>
+	</dependency>
   </dependencies>
   <repositories>
     <repository>

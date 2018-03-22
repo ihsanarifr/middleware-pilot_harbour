@@ -1,0 +1,7 @@
+features:install camel-jackson camel-cxf activemq-camel camel-jms camel-amqp camel-http4 camel-xstream camel-infinispan camel-servlet camel-swagger-java camel-olingo2 camel-sql
+osgi:install mvn:org.apache.servicemix.bundles/org.apache.servicemix.bundles.commons-dbcp/1.4_3
+osgi:install wrap:mvn:org.jboss.teiid/teiid-jdbc/8.12.11.6_4-redhat-64-12
+osgi:install mvn:com.redhat.fuse.quickstart/common-service/1.0.0-SNAPSHOT
+osgi:install mvn:com.redhat.fuse.quickstart/query-service/1.0.0-SNAPSHOT
+osgi:install mvn:com.redhat.fuse.quickstart/frontend-adapter/1.0.0-SNAPSHOT
+osgi:install mvn:com.redhat.fuse.quickstart/backend-adapter/1.0.0-SNAPSHOT
