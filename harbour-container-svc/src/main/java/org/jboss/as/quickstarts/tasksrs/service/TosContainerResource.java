@@ -67,11 +67,19 @@ public class TosContainerResource {
     @Path("stacks")
     // @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Consumes({"application/json"})
-    public Response createStack(List<TosContainerStack> stacks){
+    public Response createStack(TosContainerStack stack){
+        taskDao.createStack(stack);
+		return Response.ok().build();
+    }
+   
+    @POST
+    @Path("stacks")
+    // @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
+    @Consumes({"application/json"})
+    public Response createBulkStack(List<TosContainerStack> stacks){
         for (TosContainerStack stack : stacks) {
             taskDao.createStack(stack);
         }
 		return Response.ok().build();
     }
-   
 }

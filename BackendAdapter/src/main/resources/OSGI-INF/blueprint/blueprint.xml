@@ -29,6 +29,16 @@
       While it is not required to assign id's to the <camelContext/> and <route/> elements, it is a good idea
       to set those for runtime management purposes (logging, JMX MBeans, ...)
     -->
+    <!-- JMS QPid Proton Configuration -->
+    <bean class="org.apache.qpid.jms.JmsConnectionFactory" id="jmsConnectionFactory">
+        <property name="remoteURI" value="amqp://localhost:5672"/>
+        <property name="username" value="admin"/>
+        <property name="password" value="P@ssw0rd"/>
+    </bean>
+    <!-- Camel AMQP Component configuration -->
+    <bean class="org.apache.camel.component.amqp.AMQPComponent" id="amqp">
+        <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    </bean>
     <camelContext id="Backend_Content" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="_route1">
             <from id="_from1" uri="vm:getContainerStack"/>
@@ -44,11 +54,8 @@
             </setBody>
             <to id="getStacks" uri="http4://localhost:8080/harbour-container/stacks"/>
             <convertBodyTo id="_convertBodyTo1" type="java.lang.String"/>
-            <unmarshal id="_unmarshal1">
-                <json library="Jackson"
-                    unmarshalTypeName="java.util.HashMap" useList="true"/>
-            </unmarshal>
             <log id="_log3" message="unmarshal ${body}"/>
+            <to id="_to1" pattern="InOnly" uri="vm:common"/>
             <onException id="_onException1">
                 <exception>java.lang.Exception</exception>
                 <handled>
@@ -63,13 +70,11 @@
         <route id="_route2">
             <from id="_from2" uri="vm:createStack"/>
             <removeHeaders id="_removeHeaders2" pattern="CamelHttp*"/>
-            <marshal id="_marshal1">
-                <json library="Jackson" prettyPrint="true" useList="true"/>
-            </marshal>
             <setHeader headerName="CamelHttpMethod" id="_setHeader1">
                 <constant>POST</constant>
             </setHeader>
             <to id="sendStack" uri="http4://localhost:8080/harbour-container/stacks"/>
+            <to id="_to2" pattern="InOnly" uri="vm:common"/>
             <onException id="_onException2">
                 <exception>java.lang.Exception</exception>
                 <handled>
@@ -80,6 +85,10 @@
                     <simple>'SystemError'</simple>
                 </setBody>
             </onException>
+        </route>
+        <route id="amqp_backend">
+            <from id="getQueue" uri="amqp:queue:HarbourCreate"/>
+            <to id="_to3" uri="vm:createStack"/>
         </route>
     </camelContext>
 </blueprint>
