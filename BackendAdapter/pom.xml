@@ -15,6 +15,18 @@
       <distribution>repo</distribution>
     </license>
   </licenses>
+  <distributionManagement>
+    <repository>
+      <id>local.central</id>
+      <name>local.central</name>
+      <url>http://localhost:8381/artifactory/libs-release-local</url>
+    </repository>
+    <snapshotRepository>
+      <id>local.snapshots</id>
+      <name>local.snapshots</name>
+      <url>http://localhost:8381/artifactory/libs-snapshot-local</url>
+    </snapshotRepository>
+  </distributionManagement>
   <properties>
     <camel.version>2.17.0.redhat-630187</camel.version>
     <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
@@ -71,12 +83,18 @@
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-http4</artifactId>
-      <version>2.18.1.redhat-000021</version>
     </dependency>
     <dependency>
       <groupId>org.apache.camel</groupId>
       <artifactId>camel-amqp</artifactId>
-      <version>2.17.0.redhat-630187</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.camel</groupId>
+      <artifactId>camel-amqp</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.activemq</groupId>
+      <artifactId>activemq-camel</artifactId>
     </dependency>
   </dependencies>
   <repositories>

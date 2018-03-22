@@ -32,14 +32,19 @@
     <cxf:cxfEndpoint address="/ws/stacks" id="stackWebService"
         loggingFeatureEnabled="true" serviceClass="com.redhat.fuse.quickstart.FrontEndAdapter"/>
     <!-- JMS QPid Proton Configuration -->
-    <bean class="org.apache.qpid.jms.JmsConnectionFactory" id="jmsConnectionFactory">
+    <!-- <bean class="org.apache.qpid.jms.JmsConnectionFactory" id="jmsConnectionFactory">
         <property name="remoteURI" value="amqp://localhost:5672"/>
         <property name="username" value="admin"/>
         <property name="password" value="P@ssw0rd"/>
-    </bean>
+    </bean> -->
     <!-- Camel AMQP Component configuration -->
-    <bean class="org.apache.camel.component.amqp.AMQPComponent" id="amqp">
+   <!--  <bean class="org.apache.camel.component.amqp.AMQPComponent" id="amqp">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    </bean> -->
+    <bean class="org.apache.activemq.camel.component.ActiveMQComponent" id="activemq">
+        <property name="brokerURL" value="tcp://localhost:61616"/>
+        <property name="userName" value="admin"/>
+        <property name="password" value="P@ssw0rd"/>
     </bean>
     <camelContext id="frontend-context" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="SOAP">
@@ -70,7 +75,8 @@
                 <marshal id="_marshal1">
                     <json library="Jackson"/>
                 </marshal>
-                <to id="createStack" pattern="InOnly" uri="amqp:queue:HarbourCreate"/>
+               <!--  <to id="createStack" pattern="InOnly" uri="amqp:queue:HarbourCreate?testConnectionOnStartup=true"/> -->
+                 <to id="createStack" pattern="InOnly" uri="activemq:queue:Queue.HarbourCreate"/>
             </split>
             <setBody id="_setBody1">
                 <constant>'Processed'</constant>

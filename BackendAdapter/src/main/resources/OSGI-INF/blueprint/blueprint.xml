@@ -30,14 +30,19 @@
       to set those for runtime management purposes (logging, JMX MBeans, ...)
     -->
     <!-- JMS QPid Proton Configuration -->
-    <bean class="org.apache.qpid.jms.JmsConnectionFactory" id="jmsConnectionFactory">
+    <!-- <bean class="org.apache.qpid.jms.JmsConnectionFactory" id="jmsConnectionFactory">
         <property name="remoteURI" value="amqp://localhost:5672"/>
         <property name="username" value="admin"/>
         <property name="password" value="P@ssw0rd"/>
-    </bean>
+    </bean> -->
     <!-- Camel AMQP Component configuration -->
-    <bean class="org.apache.camel.component.amqp.AMQPComponent" id="amqp">
+   <!--  <bean class="org.apache.camel.component.amqp.AMQPComponent" id="amqp">
         <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    </bean> -->
+    <bean class="org.apache.activemq.camel.component.ActiveMQComponent" id="activemq">
+        <property name="brokerURL" value="tcp://localhost:61616"/>
+        <property name="userName" value="admin"/>
+        <property name="password" value="P@ssw0rd"/>
     </bean>
     <camelContext id="Backend_Content" xmlns="http://camel.apache.org/schema/blueprint">
         <route id="_route1">
@@ -73,8 +78,12 @@
             <setHeader headerName="CamelHttpMethod" id="_setHeader1">
                 <constant>POST</constant>
             </setHeader>
-            <to id="sendStack" uri="http4://localhost:8080/harbour-container/stacks"/>
+            <setHeader headerName="Content-Type" id="_setHeader4">
+                <constant>application/json</constant>
+            </setHeader>
             <to id="_to2" pattern="InOnly" uri="vm:common"/>
+            <to id="sendStack" uri="http4://localhost:8080/harbour-container/stacks"/>
+            <to id="_to3" pattern="InOnly" uri="vm:common"/>
             <onException id="_onException2">
                 <exception>java.lang.Exception</exception>
                 <handled>
@@ -87,7 +96,8 @@
             </onException>
         </route>
         <route id="amqp_backend">
-            <from id="getQueue" uri="amqp:queue:HarbourCreate"/>
+        <!--     <from id="getQueue" uri="amqp:queue:HarbourCreate"/> -->
+            <from id="getQueue" uri="activemq:queue:Queue.HarbourCreate"/>
             <to id="_to3" uri="vm:createStack"/>
         </route>
     </camelContext>

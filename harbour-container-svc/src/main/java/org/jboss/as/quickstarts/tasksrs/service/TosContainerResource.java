@@ -64,7 +64,7 @@ public class TosContainerResource {
     }
 
     @POST
-    @Path("stacks")
+    @Path("stack")
     // @Consumes({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})
     @Consumes({"application/json"})
     public Response createStack(TosContainerStack stack){
