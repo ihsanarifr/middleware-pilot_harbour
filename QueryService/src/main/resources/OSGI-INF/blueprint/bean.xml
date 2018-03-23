@@ -2,31 +2,29 @@
 <blueprint xmlns="http://www.osgi.org/xmlns/blueprint/v1.0.0"
     xmlns:camel="http://camel.apache.org/schema/blueprint"
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.osgi.org/xmlns/blueprint/v1.0.0 https://www.osgi.org/xmlns/blueprint/v1.0.0/blueprint.xsd        http://camel.apache.org/schema/blueprint http://camel.apache.org/schema/blueprint/camel-blueprint.xsd">
-    <bean id="odata" class="org.apache.camel.component.olingo2.Olingo2Component">
-    <property name="configuration">
-      <bean class="org.apache.camel.component.olingo2.Olingo2Configuration">
-        <property name="httpHeaders">
-          <map>
-            <entry key="Authorization" value="${odata.auth}" />
-            <entry key="Accept" value="${odata.accept}" />
-            <entry key="ContentType" value="${odata.contentType}" />
-          </map>
+    <bean class="org.apache.camel.component.olingo2.Olingo2Component" id="odata">
+        <property name="configuration">
+            <bean class="org.apache.camel.component.olingo2.Olingo2Configuration">
+                <property name="httpHeaders">
+                    <map>
+                        <entry key="Authorization" value="${odata.auth}"/>
+                        <entry key="Accept" value="${odata.accept}"/>
+                        <entry key="ContentType" value="${odata.contentType}"/>
+                    </map>
+                </property>
+                <property name="serviceUri" value="${odata.SpinnerVDB}"/>
+            </bean>
         </property>
-        <property name="serviceUri" value="${odata.SpinnerVDB}"/>
-      </bean>
-    </property>
-  </bean>
-  
-   <bean class="com.redhat.fuse.quickstart.aggreator.ArrayListAggregationStrategy" id="ArrayListAggregationStrategy"/>
-   
-   <bean class="org.apache.commons.dbcp.BasicDataSource"
+    </bean>
+    <bean
+        class="com.redhat.fuse.quickstart.aggreator.ArrayListAggregationStrategy" id="ArrayListAggregationStrategy"/>
+    <bean class="org.apache.commons.dbcp.BasicDataSource"
         destroy-method="close" id="dsJdv">
         <property name="driverClassName" value="${db.driverClassName}"/>
         <property name="url" value="${db.url}"/>
         <property name="username" value="${db.username}"/>
         <property name="password" value="${db.password}"/>
     </bean>
-    
     <bean
         class="org.apache.camel.component.servlet.osgi.OsgiServletRegisterer"
         destroy-method="unregister" id="servletRegisterer" init-method="register">
