@@ -31,6 +31,7 @@ try {
                                 withEnv(["PATH+MAVEN=${tool 'maven-latest'}/bin"]) {
                                     dir("${params.GIT_REPO_SUBFOLDER}"){
                                         pom = readMavenPom file: 'pom.xml'
+                                        orginalVersion = pom.version
                                         sh "echo ${pom.version} | cut -d '-' -f 1 | tr -d '\n' > version.txt"
                                         version=readFile('version.txt')
                                         echo "version : ${version}"
@@ -40,6 +41,9 @@ try {
                                         }
                                         sh "${mvnCmd} versions:set -DnewVersion=${version}"
                                         sh "${mvnCmd} clean install deploy -DskipTests=true -DaltDeploymentRepository=artifactory::default::http://${MVN_USER}:${MVN_TOKEN}@${params.MAVEN_REPO_URL}"
+                                        pom = readMavenPom file: 'pom.xml'
+                                        pom.description = pom.description + "promote from :" + orginalVersion
+                                        writeMavenPom model: pom
                                     }
                                 }
                             }
