@@ -1,0 +1,45 @@
+<settings>
+    <servers>
+        <server>
+            <id>artifactory</id>
+            <username>deployment</username>
+            <password>deployment123</password>
+        </server>
+    </servers>
+    <mirrors>
+        <mirror>
+      <!--This sends everything else to /public -->
+            <id>artifactory</id>
+            <mirrorOf>*</mirrorOf>
+            <url>http://localhost:8381/artifactory/redhat-repo/</url>
+            <!-- <url>http://10.0.130.27:8081/artifactory/redhat-repo/</url>-->
+        </mirror>
+    </mirrors>
+    <profiles>
+        <profile>
+            <id>artifactory</id>
+      <!--Enable snapshots for the built in central repo to direct -->
+      <!--all requests to nexus via the mirror -->
+            <repositories>
+                <repository>
+                    <id>central</id>
+                    <url>http://central</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>central</id>
+                    <url>http://central</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>true</enabled></snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+    <!--make the profile active all the time -->
+        <activeProfile>artifactory</activeProfile>
+    </activeProfiles>
+</settings>
