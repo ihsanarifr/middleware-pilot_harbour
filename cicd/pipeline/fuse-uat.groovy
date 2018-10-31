@@ -20,6 +20,7 @@ try {
                         stage("Git Clone"){
                             git branch: params.GIT_REPO_BRANCH, url: params.GIT_REPO, credentialsId: params.GIT_REPO_CREDENTIAL, poll: true, changelog: true
                             // git branch: params.GIT_REPO_BRANCH, url: params.GIT_REPO, poll: true, changelog: true
+                            echo "try to build :${params.GIT_REPO_BRANCH} with subfolder: ${params.GIT_REPO_SUBFOLDER}"
                         }
                         stage ("Compiling"){
                             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: params.MAVEN_REPO_CREDENTIAL, usernameVariable: 'MVN_USER', passwordVariable:"MVN_TOKEN"]]){

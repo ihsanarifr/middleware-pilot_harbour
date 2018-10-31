@@ -43,7 +43,7 @@ try {
                                         sh "${mvnCmd} versions:set -DnewVersion=${version}"
                                         sh "${mvnCmd} clean install deploy -DskipTests=true -DaltDeploymentRepository=artifactory::default::http://${MVN_USER}:${MVN_TOKEN}@${params.MAVEN_REPO_URL}"
                                         pom = readMavenPom file: 'pom.xml'
-                                        pom.description = pom.description + "promote from :" + orginalVersion
+                                        pom.description = pom.description + " promote from :" + orginalVersion
                                         writeMavenPom model: pom
                                         sh "${mvnCmd} clean"
                                     }
@@ -56,21 +56,32 @@ try {
                                                     parameters: [string(name: 'RELEASE_MESSAGE', defaultValue: '', description: 'Release Note')]
                             }
                             withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: params.GIT_REPO_CREDENTIAL, usernameVariable: 'GIT_USER', passwordVariable:"GIT_PASS"]]){
-                                sh "rm -rf target && mkdir target"
-                                sh "cp -Rf '${params.GIT_REPO_SUBFOLDER}' target"
+                                sh "rm -rf target && mkdir -p 'target/${params.GIT_REPO_SUBFOLDER}'"
+                                sh "rsync -a '${params.GIT_REPO_SUBFOLDER}/' 'target/${params.GIT_REPO_SUBFOLDER}/'"
 
                                 git branch: params.GIT_REPO_BRANCH_TARGET, url: params.GIT_REPO_TARGET
-                                 
 
-                                sh "cp -Rf 'target/${params.GIT_REPO_SUBFOLDER}' ."
+                                sh "mkdir -p '${params.GIT_REPO_SUBFOLDER}'"
+
+                                sh "rsync -a 'target/${params.GIT_REPO_SUBFOLDER}/' '${params.GIT_REPO_SUBFOLDER}/'"
+                                
+                                sh "git config user.email 'jenkins@pelindo3.co.id'"
+                                sh "git config user.name 'jenkins'"
+                                def newFolder = true
+                                try {
+                                    sh "git add '${params.GIT_REPO_SUBFOLDER}'"
+                                }catch(err){
+                                    newFolder = false
+                                }
+                                if (newFolder){
+                                    sh "git commit -m 'add/update ${version} with notes: ${env.RELEASE_NOTE}' || true"
+                                }
 
                                 dir("${params.GIT_REPO_SUBFOLDER}"){
-                                    sh "git config user.email 'jenkins@pelindo3.co.id'"
-                                    sh "git config user.name 'jenkins'"
                                     sh "git add . || true"
                                     sh "git commit -a -m 'add/update ${version} with notes: ${env.RELEASE_NOTE}' || true"
-                                    sh "git push origin master"
                                 }
+                                sh "git push origin master"
 
                             }
                         }

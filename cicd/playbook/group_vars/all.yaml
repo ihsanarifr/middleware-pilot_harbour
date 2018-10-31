@@ -1,0 +1,28 @@
+# Fuse Version and Patch
+fuse:
+  version: '7.0.1.fuse-000011-redhat-3'
+  maven_version: '2.21.0.fuse-000112-redhat-3'
+
+
+# OS User to install/execute Fuse
+user:
+  name: 'jboss'
+  shell: '/bin/bash'
+  homedir: 'True'
+
+# OS Global Variables
+
+# Java Home
+java_home: /usr/lib/jvm/jre-1.8.0-openjdk
+
+# Fuse Home
+fuse_base: '/jboss/apps/fuse/'
+# fuse_home: '{{ fuse_base }}/latest-{{ esb_name }}'
+fuse_home: '{{ fuse_base }}'
+
+
+## Setup for Applications and Bundles
+
+# fuse_client: '{{ fuse_home }}/bin/client -r 3 -d 10 -u {{ fuse_users.admin.username }} -p {{ fuse_users.admin.password }}'
+fuse_client: '{{ fuse_home }}/bin/client -r 3 -d 10'
+

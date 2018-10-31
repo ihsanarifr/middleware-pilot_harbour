@@ -1,0 +1,115 @@
+---
+- debug:
+    var: configuration
+    verbosity: 2
+  when: configuration is defined
+
+- debug:
+    var: features
+    verbosity: 2
+  when: features is defined
+
+- debug:
+    var: bundles
+    verbosity: 2
+  when: bundles is defined
+
+- name: Install FUSE Features in {{ esb_name }}
+  become_user: "{{ user['name'] }}"
+  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} 'features:install {{ item }}'"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: '{{ features }}'
+  # notify:
+    # - restart fuse-{{ esb_name }}
+  when: features is defined and
+        (features is defined and deploy_features == 'yes')
+
+- name: Install Bundles in {{ esb_name }}
+  become_user: "{{ user['name'] }}"
+  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} 'bundle:install -s {{ item }}'"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: '{{ bundles }}'
+  # notify:
+    # - restart fuse-{{ esb_name }}
+  when: bundles is defined and
+        (bundles is defined and deploy_bundles == 'yes')
+
+- name: Update Bundles in {{ esb_name }}
+  become_user: "{{ user['name'] }}"
+  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} 'bundle:update {{ item }}'"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: '{{ bundles }}'
+  # notify:
+    # - restart fuse-{{ esb_name }}
+  when: bundles is defined and
+        (bundles is defined and deploy_bundles == 'yes')
+
+- name: refresh Bundles in {{ esb_name }}
+  become_user: "{{ user['name'] }}"
+  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} 'bundle:refresh {{ item }}'"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: '{{ bundles }}'
+  # notify:
+    # - restart fuse-{{ esb_name }}
+  when: bundles is defined and
+        (bundles is defined and deploy_bundles == 'yes')
+
+- name: create temporary file
+  tempfile:
+    state: file
+    suffix: fuse-config
+  register: tempconfig
+  when: configuration is defined and
+        (configuration is defined and deploy_config == 'yes')
+
+- name: print tempfile
+  debug: msg="{{ tempconfig.path }}"
+  when: configuration is defined and
+        (configuration is defined and deploy_config == 'yes')
+
+- name: Prepare Configuration in {{ esb_name }}
+  become_user: "{{ user['name'] }}"
+  shell: "echo '{{ item }}' >> {{ tempconfig.path }}"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: '{{ configuration }}'
+  # notify:
+    # - restart fuse-{{ esb_name }}
+  when: configuration is defined and
+        (configuration is defined and deploy_config == 'yes')
+
+- name: Cleansing tempfile
+  shell: "sed -i \"s/$(echo -ne '\u200b')//g\" {{ tempconfig.path }}"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  when: configuration is defined and
+        (configuration is defined and deploy_config == 'yes')
+
+- name: Check tempfile
+  shell: "cat {{ tempconfig.path }}"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  when: configuration is defined and
+        (configuration is defined and deploy_config == 'yes')
+
+- name: Update Configuration in {{ esb_name }}
+  become_user: "{{ user['name'] }}"
+  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} -b < '{{ tempconfig.path }}'"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  # notify:
+    # - restart fuse-{{ esb_name }}
+  when: configuration is defined and
+        (configuration is defined and deploy_config == 'yes')

@@ -1,0 +1,15 @@
+---
+- name: Fuse QA Deploy Bundles Playbook
+  hosts: fuse-qa
+  # vars_files:
+  #   - vars/deploy.yml
+  gather_facts: true
+  # become: yes
+  roles:
+    - {
+        role: fuse-deploy,
+        esb_name: 'fuseesb',
+        deploy_features: 'yes',
+        deploy_bundles: 'yes',
+        deploy_config: 'yes'
+      }

@@ -1,0 +1,21 @@
+---
+# deploy
+bundles:
+  - http://maven.pelindo.co.id:8081/artifactory/pelindo3-03-production/id/co/asyst/middleware/commons/commons-auth/1.0.0/commons-auth-1.0.0.jar
+
+# Features List to deploy using features install
+features:
+# to enable/deploy Camel Component Feature from FUSE BOM or other Karaf Features
+  - camel-jackson
+
+configuration:
+  - config:edit id.co.asyst.middleware.master.master-barang
+  # - config:propset jdg.cache.count.lifespanTime  60
+  # - config:propset jdg.cache.lifespanTime  60
+  # - config:propset jdg.cacheData  barangCache
+  # - config:propset jdg.cacheTotal  countBarangCache
+  # - config:propset odata.serviceUri  http4://10.0.130.35:8080/odata/P3_VDATA_GENC/V_MASTER_BARANG
+  # - config:propset odata.serviceUriTotal  http4://10.0.130.35:8080/odata/P3_VDATA_GENC/V_MASTER_BARANG/~count
+  - config:propset throttle.service.fa  10000
+  - config:propset timeout.service.core  20000
+  - config:update​

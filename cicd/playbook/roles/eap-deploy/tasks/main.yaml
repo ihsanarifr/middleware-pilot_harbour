@@ -1,0 +1,2 @@
+---
+- include: eap-deploy-bundle.yaml

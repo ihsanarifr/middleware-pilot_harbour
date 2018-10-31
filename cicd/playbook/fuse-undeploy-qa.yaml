@@ -1,0 +1,9 @@
+---
+- name: Fuse QA Undeploy Bundles Playbook
+  hosts: fuse-qa
+  # vars_files:
+  #   - vars/undeploy.yml
+  gather_facts: true
+  # become: yes
+  roles:
+    - { role: fuse-undeploy, esb_name: 'fuseesb' }

@@ -1,0 +1,2 @@
+---
+- include: fuse-deploy-bundle.yaml
