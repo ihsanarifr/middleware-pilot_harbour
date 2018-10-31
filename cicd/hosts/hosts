@@ -64,11 +64,11 @@ svrlqeap01.pelindo.co.id eaphome=/jboss/apps/pel3eap/uateap
 svrldeap01.pelindo.co.id eaphome=/jboss/apps/pel3eap/deveap
 
 [jdv-prod]
-svrlpjdv01.pelindo.co.id
-svrlpjdv02.pelindo.co.id
+svrlpjdv01.pelindo.co.id jdvhome=/jboss/apps/pel3eap/prdeap1
+svrlpjdv02.pelindo.co.id jdvhome=/jboss/apps/pel3eap/prdeap2
 
 [jdv-qa]
-svrlqjdv01.pelindo.co.id
+svrlqjdv01.pelindo.co.id jdvhome=/jboss/apps/pel3jdg/uatjdg
 
 [jdv-dev]
-svrldjdv01.pelindo.co.id
+svrldjdv01.pelindo.co.id jdvhome=/jboss/apps/pel3jdv/devjdv
