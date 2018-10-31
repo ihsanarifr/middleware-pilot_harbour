@@ -20,6 +20,10 @@ fuse_base: '/jboss/apps/fuse/'
 # fuse_home: '{{ fuse_base }}/latest-{{ esb_name }}'
 fuse_home: '{{ fuse_base }}'
 
+# EAP Home
+eap_base: '/jboss/apps/fuse/'
+# fuse_home: '{{ fuse_base }}/latest-{{ esb_name }}'
+eap_home: '{{ fuse_base }}'
 
 ## Setup for Applications and Bundles
 

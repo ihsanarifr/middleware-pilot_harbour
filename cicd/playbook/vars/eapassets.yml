@@ -1,0 +1,4 @@
+---
+# deploy
+deploylist:
+  - http://maven.pelindo.co.id:8081/artifactory/pelindo3-03-production/id/co/asyst/middleware/commons/commons-auth/1.0.0/commons-auth-1.0.0.jar

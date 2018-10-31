@@ -1,35 +1,42 @@
 ---
-- name: Uninstall Features
-  become_user: "{{ user['name'] }}"
-  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'features:uninstall {{ item }}'"
-  args:
-      chdir: /home/{{ user['name'] }}
-      executable: /bin/bash
-  with_items: '{{ features_undeploy }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
-  when: features is defined 
+- name: create temporary folder
+  tempfile:
+    state: directory
+    suffix: tempdeploysource
+  register: deploysrc
+  when: deploylist is defined and
+        (deploylist is defined and deploy_wars == 'yes')
 
-- name: Stop Bundles
-  become_user: "{{ user['name'] }}"
-  # shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'bundle:install {{ item.groupId }}.{{ item.artifactId }}/{{ item.version | regex_replace('-', '.')}}'"
-  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'bundle:stop {{ item }}'"
-  args:
-      chdir: /home/{{ user['name'] }}
-      executable: /bin/bash
-  with_items: '{{ bundles_undeploy }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
-  when: bundles is defined 
+- name: download all war files
+  get_url:
+    url: "{{ item }}"
+    dest: "{{ deploysrc.path }}"
+  with_items: '{{ deploylist }}'
+  when: deploylist is defined and
+        (deploylist is defined and deploy_wars == 'yes')
 
-- name: Uninstall Bundles
-  become_user: "{{ user['name'] }}"
-  # shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'bundle:install {{ item.groupId }}.{{ item.artifactId }}/{{ item.version | regex_replace('-', '.')}}'"
-  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'bundle:uninstall {{ item }}'"
+- name: list deploy file
+  shell: "ls {{ deploysrc.path }}/"
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
-  with_items: '{{ bundles_undeploy }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
-  when: bundles is defined 
+  register: deployfiles
+  when: deploylist is defined and
+        (deploylist is defined and deploy_wars == 'yes')
+
+- name: create deploy file
+  file:
+    path: "{{ deploysrc.path }}/{{ item }}.dodeploy"
+    state: touch
+    mode: 0755
+  with_items: "{{ deployfiles.stdout_lines }}"
+  when: deploylist is defined and
+        (deploylist is defined and deploy_wars == 'yes')
+
+- name: do deploy file
+  shell: "cp -f {{ deploysrc.path }}/* {{ eaphome }}/deployments/"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  when: deploylist is defined and
+        (deploylist is defined and deploy_wars == 'yes')

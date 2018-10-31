@@ -1,0 +1,74 @@
+# This is the default ansible 'hosts' file.
+#
+# It should live in /etc/ansible/hosts
+#
+#   - Comments begin with the '#' character
+#   - Blank lines are ignored
+#   - Groups of hosts are delimited by [header] elements
+#   - You can enter hostnames or ip addresses
+#   - A hostname/ip can be a member of multiple groups
+
+# Ex 1: Ungrouped hosts, specify before any group headers.
+
+## green.example.com
+## blue.example.com
+## 192.168.100.1
+## 192.168.100.10
+
+# Ex 2: A collection of hosts belonging to the 'webservers' group
+
+## [webservers]
+## alpha.example.org
+## beta.example.org
+## 192.168.1.100
+## 192.168.1.110
+
+# If you have multiple hosts following a pattern you can specify
+# them like this:
+
+## www[001:006].example.com
+
+# Ex 3: A collection of database servers in the 'dbservers' group
+
+## [dbservers]
+## 
+## db01.intranet.mydomain.net
+## db02.intranet.mydomain.net
+## 10.25.1.56
+## 10.25.1.57
+
+# Here's another example of host ranges, this time there are no
+# leading 0s:
+
+## db-[99:101]-node.example.com
+
+#fuse
+[fuse-prod]
+svrlpfus01.pelindo.co.id
+svrlpfus02.pelindo.co.id
+
+[fuse-qa]
+svrlqfus01.pelindo.co.id
+
+[fuse-dev]
+svrldfus01.pelindo.co.id
+
+[eap-prod]
+svrlpeap01.pelindo.co.id eaphome=/jboss/apps/pel3eap/prdeap1
+svrlpeap02.pelindo.co.id eaphome=/jboss/apps/pel3eap/prdeap2
+
+[eap-qa]
+svrlqeap01.pelindo.co.id eaphome=/jboss/apps/pel3eap/uateap
+
+[eap-dev]
+svrldeap01.pelindo.co.id eaphome=/jboss/apps/pel3eap/deveap
+
+[jdv-prod]
+svrlpjdv01.pelindo.co.id
+svrlpjdv02.pelindo.co.id
+
+[jdv-qa]
+svrlqjdv01.pelindo.co.id
+
+[jdv-dev]
+svrldjdv01.pelindo.co.id

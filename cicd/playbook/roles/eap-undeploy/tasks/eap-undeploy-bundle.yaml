@@ -1,0 +1,9 @@
+---
+- name: delete deployed file
+  file:
+    path: '{{ eaphome }}/deployments/{{ item.split("/")[-1] }}.deployed'
+    state: absent
+    mode: 0755
+  with_items: "{{ deploylist }}"
+  when: deploylist is defined and
+        (deploylist is defined and deploy_wars == 'yes')

@@ -1,0 +1,12 @@
+---
+- name: EAP DEV Deploy Bundles Playbook
+  hosts: eap-prod
+  # vars_files:
+  #   - vars/eapassets.yml
+  gather_facts: true
+  # become: yes
+  roles:
+    - {
+        role: eap-undeploy,
+        deploy_wars: 'yes'
+      }
