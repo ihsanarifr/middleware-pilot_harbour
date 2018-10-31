@@ -25,7 +25,7 @@ try {
             "  # - config:propset odata.serviceUriTotal  http4://10.0.130.35:8080/odata/P3_VDATA_GENC/V_MASTER_BARANG/~count\n" +
             "  # - config:propset throttle.service.fa  10000\n" +
             "  # - config:propset timeout.service.core  20000\n" +
-            "  # - config:update", description: 'GIT Repository URL DEV?') 
+            "  # - config:update", description: 'File Release?') 
                     ])
                 ])
         // def releaseExample = ""
