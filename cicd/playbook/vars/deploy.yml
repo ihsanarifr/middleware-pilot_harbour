@@ -2,6 +2,7 @@
 # deploy
 bundles:
   - http://maven.pelindo.co.id:8081/artifactory/pelindo3-03-production/id/co/asyst/middleware/commons/commons-auth/1.0.0/commons-auth-1.0.0.jar
+  # - mvn:id.co.asyst.middleware.ajg-genc/bpjk-list-fa/1.0.0-RC
 
 # Features List to deploy using features install
 features:
