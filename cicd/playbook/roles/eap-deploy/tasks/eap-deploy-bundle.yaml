@@ -40,3 +40,11 @@
       executable: /bin/bash
   when: deploylist is defined and
         (deploylist is defined and deploy_wars == 'yes')
+
+- name: wait for deploy to finish
+  wait_for:
+      path: "{{ eaphome }}/deployments/{{ item }}.deployed"
+      state: present
+      msg: "Timeout wait for deploy {{ item }}"
+  with_items: "{{ deployfiles.stdout_lines }}"
+  when: deployfiles is defined and (deployfiles.stdout_lines|length > 0)
