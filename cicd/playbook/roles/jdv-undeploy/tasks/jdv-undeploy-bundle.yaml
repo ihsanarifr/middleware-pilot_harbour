@@ -5,8 +5,7 @@
     state: absent
     mode: 0755
   with_items: "{{ deploylist }}"
-  when: deploylist is defined and
-        (deploylist is defined and deploy_wars == 'yes')
+  when: deploylist is defined and deploy_domain is not defined 
 
 - name: wait for undeploy to finish
   wait_for:
@@ -15,4 +14,12 @@
       msg: Timeout to undeploy {{ item }}
       timeout: 60
   with_items: "{{ deploylist }}"
-  when: deploylist is defined and (deploylist|length > 0)
+  when: (deploylist is defined and (deploylist|length > 0)) and deploy_domain is not defined 
+
+- name: undeploy domain
+  shell: '{{ jdv_base }}bin/jboss-cli.sh --connect controller={{ inventory_hostname }}:9999 --command="undeploy {{ item.split("/")[-1] }} --server-groups={{ jdv_server_group }}"'
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: "{{ deploylist }}"
+  when:  deploylist is defined and deploy_domain is defined

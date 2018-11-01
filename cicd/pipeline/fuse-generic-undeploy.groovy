@@ -14,7 +14,7 @@ try {
             "# features:\n" +
             "# to enable/deploy Camel Component Feature from FUSE BOM or other Karaf Features\n" +
             "  # - camel-jackson", description: 'File Release?') ,
-                        choice(name: 'TARGET_ENV', choices: ['dev', 'qa', 'prod'], description: 'Target Environment (dev/qa/prod)?')
+                        choice(name: 'TARGET_ENV', choices: ['','dev', 'qa', 'prod'], description: 'Target Environment (dev/qa/prod)?')
                     ])
                 ])
         timeout(time:60 , unit: 'MINUTES'){

@@ -20,10 +20,9 @@ fuse_base: '/jboss/apps/fuse/'
 # fuse_home: '{{ fuse_base }}/latest-{{ esb_name }}'
 fuse_home: '{{ fuse_base }}'
 
-# EAP Home
-eap_base: '/jboss/apps/fuse/'
-# fuse_home: '{{ fuse_base }}/latest-{{ esb_name }}'
-eap_home: '{{ fuse_base }}'
+# JDV base
+jdv_base: '/jboss/apps/jboss-dv-6.4/'
+jdv_server_group: 'pelindo-jdv-group'
 
 ## Setup for Applications and Bundles
 

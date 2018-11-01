@@ -5,31 +5,23 @@
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
-  with_items: '{{ features_undeploy }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
+  with_items: '{{ features }}'
   when: features is defined 
 
 - name: Stop Bundles
   become_user: "{{ user['name'] }}"
-  # shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'bundle:install {{ item.groupId }}.{{ item.artifactId }}/{{ item.version | regex_replace('-', '.')}}'"
   shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'bundle:stop {{ item }}'"
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
-  with_items: '{{ bundles_undeploy }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
+  with_items: '{{ bundles }}'
   when: bundles is defined 
 
 - name: Uninstall Bundles
   become_user: "{{ user['name'] }}"
-  # shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'bundle:install {{ item.groupId }}.{{ item.artifactId }}/{{ item.version | regex_replace('-', '.')}}'"
   shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client}} 'bundle:uninstall {{ item }}'"
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
-  with_items: '{{ bundles_undeploy }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
+  with_items: '{{ bundles }}'
   when: bundles is defined 

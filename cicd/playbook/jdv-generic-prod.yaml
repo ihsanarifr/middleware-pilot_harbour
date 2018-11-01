@@ -1,0 +1,9 @@
+---
+- name: JDV Generic Prod Bundles Playbook
+  hosts: "jdv-prod[0]"
+  gather_facts: true
+  roles:
+    - {
+        role: "jdv-{{ operation }}",
+        deploy_domain : "yes"
+      }

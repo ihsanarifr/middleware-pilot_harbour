@@ -15,6 +15,14 @@
   delegate_to: localhost
   when: (deploylist is defined) and (gitrepo is defined)
 
+- name: create directory source
+  file:
+    path: "{{ localsrc.path }}/target/"
+    state: directory
+    mode: 0755
+  delegate_to: localhost
+  when: (deploylist is defined) and (gitrepo is defined)
+
 - name: Clone Git Repository
   git:
     repo: "{{ gitrepo }}"
@@ -30,6 +38,33 @@
   delegate_to: localhost
   when: (deploylist is defined) and (gitrepo is defined)
 
+- name: Copy release vdb
+  shell: "cp -f {{ localsrc.path }}/src/{{ item }} {{ localsrc.path }}/target/"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: '{{ deploylist }}'
+  delegate_to: localhost
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: list deploy file
+  shell: "ls {{ localsrc.path }}/target/"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  register: deployfiles
+  delegate_to: localhost
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: create deploy file
+  file:
+    path: "{{ localsrc.path }}/target/{{ item }}.dodeploy"
+    state: touch
+    mode: 0755
+  with_items: "{{ deployfiles.stdout_lines }}"
+  delegate_to: localhost
+  when: (( (deploylist is defined) and (gitrepo is defined) ) and deploy_domain is not defined )
+
 - name: create temporary folder
   tempfile:
     state: directory
@@ -37,58 +72,20 @@
   register: deploysrc
   when: (deploylist is defined) and (gitrepo is defined)
 
-- name: create directory source 
-  file:
-    path: "{{ deploysrc.path }}/src/"
-    state: directory
-    mode: 0755
-  when: (deploylist is defined) and (gitrepo is defined)
-
-# - name: copy git directory 
-#   copy:
-#     src: "{{ localsrc.path }}/src/"
-#     dest: "{{ deploysrc.path }}/src/"
-#     directory_mode: true
-#     mode: 0755
-#   when: (deploylist is defined) and (gitrepo is defined)
-
-- name: create directory source
-  file:
-    path: "{{ deploysrc.path }}/target/"
-    state: directory
-    mode: 0755
-  when: (deploylist is defined) and (gitrepo is defined)
-
-- name: Copy release vdb
-  shell: "cp -f {{ deploysrc.path }}/src/{{ item }} {{ deploysrc.path }}/target/"
+- name: copy git directory 
+  shell: "scp -r {{ localsrc.path }}/target {{ inventory_hostname }}:{{ deploysrc.path }}"
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
-  with_items: '{{ deploylist }}'
-  when: (deploylist is defined) and (gitrepo is defined)
-
-- name: list deploy file
-  shell: "ls {{ deploysrc.path }}/target/"
-  args:
-      chdir: /home/{{ user['name'] }}
-      executable: /bin/bash
-  register: deployfiles
-  when: (deploylist is defined) and (gitrepo is defined)
-
-- name: create deploy file
-  file:
-    path: "{{ deploysrc.path }}/{{ item }}.dodeploy"
-    state: touch
-    mode: 0755
-  with_items: "{{ deployfiles.stdout_lines }}"
+  delegate_to: localhost
   when: (deploylist is defined) and (gitrepo is defined)
 
 - name: do deploy file
-  shell: "cp -f {{ deploysrc.path }}/* {{ jdvhome }}/deployments/"
+  shell: "cp -f {{ deploysrc.path }}/target/* {{ jdvhome }}/deployments/"
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
-  when: (deploylist is defined) and (gitrepo is defined)
+  when:  (( (deploylist is defined) and (gitrepo is defined) ) and deploy_domain is not defined )
 
 - name: wait for deploy to finish
   wait_for:
@@ -98,4 +95,12 @@
       delay: 10
       timeout: 60
   with_items: "{{ deployfiles.stdout_lines }}"
-  when: ((deploylist is defined) and (gitrepo is defined)) and (deployfiles.stdout_lines|length > 0)
+  when: ((((deploylist is defined) and (gitrepo is defined)) and (deployfiles.stdout_lines|length > 0)) and deploy_domain is not defined )
+
+- name: do deploy domain
+  shell: '{{ jdv_base }}bin/jboss-cli.sh --connect controller={{ inventory_hostname }}:9999 --command="deploy {{ deploysrc.path }}/target/{{ item }} --server-groups={{ jdv_server_group }}"'
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: "{{ deployfiles.stdout_lines }}"
+  when:  (( (deploylist is defined) and (gitrepo is defined) ) and deploy_domain is defined )
