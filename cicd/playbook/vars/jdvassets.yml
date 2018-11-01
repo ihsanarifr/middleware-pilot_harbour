@@ -1,0 +1,5 @@
+---
+gitrepo: "ssh://svrtfs.pelindo.co.id:22/tfs/Middleware/Middleware/_git/p3-vdata"
+
+deploylist:
+  - VDB/P3_VIEWS.vdb

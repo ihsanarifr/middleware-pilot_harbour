@@ -1,7 +1,7 @@
 ---
 - name: delete deployed file
   file:
-    path: '{{ eaphome }}/deployments/{{ item.split("/")[-1] }}.deployed'
+    path: '{{ jdvhome }}/deployments/{{ item.split("/")[-1] }}.deployed'
     state: absent
     mode: 0755
   with_items: "{{ deploylist }}"
@@ -10,7 +10,7 @@
 
 - name: wait for undeploy to finish
   wait_for:
-      path: '{{ eaphome }}/deployments/{{ item.split("/")[-1] }}.undeployed'
+      path: '{{ jdvhome }}/deployments/{{ item.split("/")[-1] }}.undeployed'
       state: present
       msg: Timeout to undeploy {{ item }}
       timeout: 60

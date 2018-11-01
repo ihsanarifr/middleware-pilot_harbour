@@ -1,0 +1,101 @@
+---
+- name: create temporary folder on local
+  tempfile:
+    state: directory
+    suffix: jdvdeploy
+  register: localsrc
+  delegate_to: localhost
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: create directory source on local
+  file:
+    path: "{{ localsrc.path }}/src/"
+    state: directory
+    mode: 0755
+  delegate_to: localhost
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: Clone Git Repository
+  git:
+    repo: "{{ gitrepo }}"
+    dest: "{{ localsrc.path }}/src"
+  delegate_to: localhost
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: Clean git repo
+  shell: "rm -rf {{ localsrc.path }}/src/.git && rm -rf {{ localsrc.path }}/src/.project"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  delegate_to: localhost
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: create temporary folder
+  tempfile:
+    state: directory
+    suffix: jdvdeploy
+  register: deploysrc
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: create directory source 
+  file:
+    path: "{{ deploysrc.path }}/src/"
+    state: directory
+    mode: 0755
+  when: (deploylist is defined) and (gitrepo is defined)
+
+# - name: copy git directory 
+#   copy:
+#     src: "{{ localsrc.path }}/src/"
+#     dest: "{{ deploysrc.path }}/src/"
+#     directory_mode: true
+#     mode: 0755
+#   when: (deploylist is defined) and (gitrepo is defined)
+
+- name: create directory source
+  file:
+    path: "{{ deploysrc.path }}/target/"
+    state: directory
+    mode: 0755
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: Copy release vdb
+  shell: "cp -f {{ deploysrc.path }}/src/{{ item }} {{ deploysrc.path }}/target/"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  with_items: '{{ deploylist }}'
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: list deploy file
+  shell: "ls {{ deploysrc.path }}/target/"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  register: deployfiles
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: create deploy file
+  file:
+    path: "{{ deploysrc.path }}/{{ item }}.dodeploy"
+    state: touch
+    mode: 0755
+  with_items: "{{ deployfiles.stdout_lines }}"
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: do deploy file
+  shell: "cp -f {{ deploysrc.path }}/* {{ jdvhome }}/deployments/"
+  args:
+      chdir: /home/{{ user['name'] }}
+      executable: /bin/bash
+  when: (deploylist is defined) and (gitrepo is defined)
+
+- name: wait for deploy to finish
+  wait_for:
+      path: "{{ jdvhome }}/deployments/{{ item }}.deployed"
+      state: present
+      msg: "Timeout 1 minutes reached for wait for deploy {{ item }}"
+      delay: 10
+      timeout: 60
+  with_items: "{{ deployfiles.stdout_lines }}"
+  when: ((deploylist is defined) and (gitrepo is defined)) and (deployfiles.stdout_lines|length > 0)

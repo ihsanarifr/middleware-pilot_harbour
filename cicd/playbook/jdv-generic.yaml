@@ -1,0 +1,11 @@
+---
+- name: JDV Generic Bundles Playbook
+  hosts: "jdv-{{ env }}"
+  # vars_files:
+  #   - vars/jdvassets.yml
+  gather_facts: true
+  # become: yes
+  roles:
+    - {
+        role: "jdv-{{ operation }}"
+      }

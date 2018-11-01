@@ -45,6 +45,8 @@
   wait_for:
       path: "{{ eaphome }}/deployments/{{ item }}.deployed"
       state: present
-      msg: "Timeout wait for deploy {{ item }}"
+      msg: "Timeout 1 minutes reached for wait for deploy {{ item }}"
+      delay: 10
+      timeout: 60
   with_items: "{{ deployfiles.stdout_lines }}"
   when: deployfiles is defined and (deployfiles.stdout_lines|length > 0)
