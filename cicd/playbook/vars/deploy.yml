@@ -9,6 +9,7 @@ features:
 # to enable/deploy Camel Component Feature from FUSE BOM or other Karaf Features
   - camel-jackson
 
+#only for deploy
 configuration:
   - config:edit id.co.asyst.middleware.master.master-barang
   # - config:propset jdg.cache.count.lifespanTime  60

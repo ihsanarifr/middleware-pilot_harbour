@@ -15,50 +15,35 @@
   when: bundles is defined
 
 - name: Install FUSE Features in {{ esb_name }}
+  ignore_errors: True
   become_user: "{{ user['name'] }}"
   shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} 'features:install {{ item }}'"
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
   with_items: '{{ features }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
   when: features is defined and
         (features is defined and deploy_features == 'yes')
 
 - name: Install Bundles in {{ esb_name }}
+  ignore_errors: True
   become_user: "{{ user['name'] }}"
   shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} 'bundle:install -s {{ item }}'"
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
   with_items: '{{ bundles }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
-  when: bundles is defined and
-        (bundles is defined and deploy_bundles == 'yes')
-
-- name: Update Bundles in {{ esb_name }}
-  become_user: "{{ user['name'] }}"
-  shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} 'bundle:update {{ item }}'"
-  args:
-      chdir: /home/{{ user['name'] }}
-      executable: /bin/bash
-  with_items: '{{ bundles }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
   when: bundles is defined and
         (bundles is defined and deploy_bundles == 'yes')
 
 - name: refresh Bundles in {{ esb_name }}
+  ignore_errors: True
   become_user: "{{ user['name'] }}"
   shell: "source /home/{{ user['name'] }}/.bash_profile; {{ fuse_client }} 'bundle:refresh {{ item }}'"
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
   with_items: '{{ bundles }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
   when: bundles is defined and
         (bundles is defined and deploy_bundles == 'yes')
 
@@ -82,8 +67,6 @@
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
   with_items: '{{ configuration }}'
-  # notify:
-    # - restart fuse-{{ esb_name }}
   when: configuration is defined and
         (configuration is defined and deploy_config == 'yes')
 
@@ -109,7 +92,5 @@
   args:
       chdir: /home/{{ user['name'] }}
       executable: /bin/bash
-  # notify:
-    # - restart fuse-{{ esb_name }}
   when: configuration is defined and
         (configuration is defined and deploy_config == 'yes')
